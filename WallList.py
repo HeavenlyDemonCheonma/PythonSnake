@@ -2,8 +2,10 @@ import Wall
 
 class WallList:
     walls = []
-    def __init__(self):
+    def __init__(self, *toupleXY):
         self.walls = []
+        for wallXY in toupleXY:
+            self.walls.append(Wall.Wall(wallXY[0], wallXY[1]))
 
     def draw(self, game):
         for wall in self.walls:

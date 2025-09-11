@@ -6,7 +6,7 @@ import AppleList
 import WallList
 
 class Game:
-    def __init__(self, border=False):
+    def __init__(self, border=False, wallsAsWallList=WallList.WallList()):
         self.grid = Grid.Grid(25, 25, 25, (212, 222, 151), (198, 204, 135), 50)
         self.snake = Snake.Snake(5)
         self.snake2 = Snake.Snake(5)
@@ -17,7 +17,7 @@ class Game:
         self.running = True
         self.score = 0
         self.border = border
-        self.walls = WallList.WallList()
+        self.walls = wallsAsWallList
         self.spacebarIsPressed = False
 
         self.apples.addApple(self, count=2)
@@ -34,8 +34,8 @@ class Game:
 
     def renderScore(self):
         font = pygame.font.Font(None, 36)
-        scoreText = font.render(f"Score: {self.score}", True, ("White"))
-        wallsText = font.render(f"Walls: {self.border}", True, ("White"))
+        scoreText = font.render(f"Score: {self.score}", True, "White")
+        wallsText = font.render(f"Walls: {self.border}", True, "White")
         self.screen.blit(scoreText, (10, 10))
         self.screen.blit(wallsText, (200, 10))
 
@@ -49,7 +49,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()
-                self.snake.updateDirectionFromEvent(event)
+                self.snake.getKeyPressesFromEvent(event)
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.spacebarIsPressed = True

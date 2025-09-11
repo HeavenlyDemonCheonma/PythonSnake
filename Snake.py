@@ -6,6 +6,8 @@ class Snake:
     direction = Direction.Direction.RIGHT
     length = 1
     hasMovedAfterDirectionChange = False
+    nextDirectionKey = None
+    keyPresses = []
 
     def __init__(self, length):
         self.head = (5, 5)  # starting position
@@ -15,6 +17,8 @@ class Snake:
         self.hasMovedAfterDirectionChange = False
 
     def move(self, game):
+        print(self.keyPresses)
+        self.updateDirection()
         grid_width = game.grid.width
         grid_height = game.grid.height
         dx, dy = self.direction.value
@@ -65,21 +69,41 @@ class Snake:
             grid.drawSquare(screen, segment[0], segment[1], ("DarkGreen") if segment == self.head else ("Green"))
 
 
-    def updateDirectionFromEvent(self, event):
+    def getKeyPressesFromEvent(self, event):
         if event.type == pygame.KEYDOWN:
-            keyPressed = event.key
-            keyUP = pygame.K_w
-            keyDOWN = pygame.K_s
-            keyLEFT = pygame.K_a
-            keyRIGHT = pygame.K_d
-            if self.hasMovedAfterDirectionChange:
-                # check if snake moved once before allowing direction change
-                if keyPressed == keyUP and self.direction != Direction.Direction.DOWN:
-                    self.direction = Direction.Direction.UP
-                elif keyPressed == keyDOWN and self.direction != Direction.Direction.UP:
-                    self.direction = Direction.Direction.DOWN
-                elif keyPressed == keyLEFT and self.direction != Direction.Direction.RIGHT:
-                    self.direction = Direction.Direction.LEFT
-                elif keyPressed == keyRIGHT and self.direction != Direction.Direction.LEFT:
-                    self.direction = Direction.Direction.RIGHT
-            self.hasMovedAfterDirectionChange = False
+            validKeys = [pygame.K_s, pygame.K_w, pygame.K_a, pygame.K_d]
+            if not self.keyPresses and event.key in validKeys and not (self.simulateChangeDirection(event.key) == self.direction.getOpposite() or self.simulateChangeDirection(event.key) == self.direction):
+                self.keyPresses.append(event.key)
+            elif self.keyPresses and event.key in validKeys and len(self.keyPresses) < 3:
+                self.keyPresses.append(event.key)
+
+
+    def updateDirection(self):
+        keyUP = pygame.K_w
+        keyDOWN = pygame.K_s
+        keyLEFT = pygame.K_a
+        keyRIGHT = pygame.K_d
+        if self.keyPresses:
+            if self.keyPresses[0] == keyUP and self.direction != Direction.Direction.DOWN:
+                self.direction = Direction.Direction.UP
+            elif self.keyPresses[0] == keyDOWN and self.direction != Direction.Direction.UP:
+                self.direction = Direction.Direction.DOWN
+            elif self.keyPresses[0] == keyLEFT and self.direction != Direction.Direction.RIGHT:
+                self.direction = Direction.Direction.LEFT
+            elif self.keyPresses[0] == keyRIGHT and self.direction != Direction.Direction.LEFT:
+                self.direction = Direction.Direction.RIGHT
+            self.keyPresses.pop(0)
+
+    def simulateChangeDirection(self, key):
+        keyUP = pygame.K_w
+        keyDOWN = pygame.K_s
+        keyLEFT = pygame.K_a
+        keyRIGHT = pygame.K_d
+        if key == keyUP:
+            return Direction.Direction.UP
+        elif key == keyDOWN:
+            return Direction.Direction.DOWN
+        elif key == keyLEFT:
+            return Direction.Direction.LEFT
+        elif key == keyRIGHT:
+            return Direction.Direction.RIGHT
