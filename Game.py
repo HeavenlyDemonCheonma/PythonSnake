@@ -9,9 +9,7 @@ class Game:
     def __init__(self, border=False, wallsAsWallList=WallList.WallList()):
         self.grid = Grid.Grid(25, 25, 25, (212, 222, 151), (198, 204, 135), 50)
         self.snake = Snake.Snake(5)
-        self.snake2 = Snake.Snake(5)
         self.apples = AppleList.AppleList()
-        self.direction = Direction.Direction.UP
         self.screen = pygame.display.set_mode((800, 800))
         self.clock = pygame.time.Clock()
         self.running = True
@@ -19,6 +17,7 @@ class Game:
         self.border = border
         self.walls = wallsAsWallList
         self.spacebarIsPressed = False
+        self.slowDownStamina = 5
 
         self.apples.addApple(self, count=2)
 
@@ -30,7 +29,12 @@ class Game:
         self.apples.draw(self.screen, self.grid)
         self.renderScore()
         pygame.display.update()
-        self.clock.tick(5 if self.spacebarIsPressed else 10)
+
+        if self.spacebarIsPressed and self.slowDownStamina > 0:
+            fps = 5
+        else:
+            fps = 10
+        self.clock.tick(fps)
 
     def renderScore(self):
         font = pygame.font.Font(None, 36)

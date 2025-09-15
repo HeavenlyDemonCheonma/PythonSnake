@@ -1,10 +1,10 @@
 import Direction
 import pygame
+import itertools
 
 class Snake:
     snake = []
     direction = Direction.Direction.RIGHT
-    length = 1
     hasMovedAfterDirectionChange = False
     nextDirectionKey = None
     keyPresses = []
@@ -13,11 +13,11 @@ class Snake:
         self.head = (5, 5)  # starting position
         self.snake = [self.head]  # snake body list
         self.length = length
+        self.keyPresses = []
 
         self.hasMovedAfterDirectionChange = False
 
     def move(self, game):
-        print(self.keyPresses)
         self.updateDirection()
         grid_width = game.grid.width
         grid_height = game.grid.height
@@ -49,7 +49,7 @@ class Snake:
             game.apples.eatApple(new_head[0], new_head[1], game)
             game.score += 1
             self.snake.append(new_head) # add new head to snake
-            # Dont remove tail so snake grows
+            game.slowDownStamina = 5
             if game.score % 10 == 0:
                 game.apples.addApple(game)
         elif len(self.snake) < self.length:
@@ -59,6 +59,11 @@ class Snake:
             # snake moves
             self.snake.append(new_head) # add new head to snake
             self.snake.pop(0) # remove tail
+
+        if game.spacebarIsPressed:
+            game.slowDownStamina -= 1
+            if game.slowDownStamina <= 0:
+                game.slowDownStamina = 0
 
         self.head = new_head
         self.hasMovedAfterDirectionChange = True
@@ -77,12 +82,16 @@ class Snake:
             elif self.keyPresses and event.key in validKeys and len(self.keyPresses) < 3:
                 self.keyPresses.append(event.key)
 
+            # remove duplicate keys
+            self.keyPresses = [k for k, _ in itertools.groupby(self.keyPresses)]
+
 
     def updateDirection(self):
         keyUP = pygame.K_w
         keyDOWN = pygame.K_s
         keyLEFT = pygame.K_a
         keyRIGHT = pygame.K_d
+
         if self.keyPresses:
             if self.keyPresses[0] == keyUP and self.direction != Direction.Direction.DOWN:
                 self.direction = Direction.Direction.UP
@@ -93,6 +102,7 @@ class Snake:
             elif self.keyPresses[0] == keyRIGHT and self.direction != Direction.Direction.LEFT:
                 self.direction = Direction.Direction.RIGHT
             self.keyPresses.pop(0)
+        self.hasMovedAfterDirectionChange = False
 
     def simulateChangeDirection(self, key):
         keyUP = pygame.K_w
